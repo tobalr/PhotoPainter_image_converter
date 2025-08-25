@@ -1,5 +1,5 @@
 {
-  description = "PhotoPainter Image Convertert";
+  description = "PhotoPainter Image Converter";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -33,7 +33,13 @@
 
           installPhase = ''
             mkdir -p $out/bin $out/share/photopainter
-            cp -r * $out/share/photopainter/
+            
+            # Copy source files, excluding nix build artifacts and broken symlinks
+            find . -type f -name "*.py" -exec cp {} $out/share/photopainter/ \;
+            find . -type f -name "*.yml" -exec cp {} $out/share/photopainter/ \; 2>/dev/null || true
+            find . -type f -name "*.yaml" -exec cp {} $out/share/photopainter/ \; 2>/dev/null || true
+            find . -type f -name "*.md" -exec cp {} $out/share/photopainter/ \; 2>/dev/null || true
+            find . -type f -name "*.txt" -exec cp {} $out/share/photopainter/ \; 2>/dev/null || true
             
             cat > $out/bin/photopainter-converter << EOF
 #!/bin/sh
