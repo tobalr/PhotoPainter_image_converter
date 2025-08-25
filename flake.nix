@@ -11,9 +11,10 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
+        # Minimal Python environment - pillow-heif pulls in OpenCV
+        # Users can install it separately if HEIC support is needed
         pythonEnv = pkgs.python311.withPackages (ps: with ps; [
           pillow
-                                        #          pillow-heif
           tqdm
         ]);
       in
@@ -25,7 +26,7 @@
           src = ./.;
 
           nativeBuildInputs = [ pythonEnv ];
-          buildInputs = with pkgs; [ libheif libjpeg libpng ];
+          buildInputs = with pkgs; [ libjpeg libpng ];
 
           dontConfigure = true;
           dontBuild = true;
@@ -36,8 +37,8 @@
             
             cat > $out/bin/photopainter-converter << EOF
 #!/bin/sh
-cd $out/share/photopainter
-exec ${pythonEnv}/bin/python convert.py "\$@"
+# Run from current directory so user can write output files
+exec ${pythonEnv}/bin/python $out/share/photopainter/convert.py "\$@"
 EOF
             chmod +x $out/bin/photopainter-converter
           '';
